@@ -3,6 +3,12 @@ from app.models.product import Product
 from app.utils.exceptions import NotFoundError, ValidationError
 
 def create_product(db: Session, data):
+    if not data.nombre.strip():
+        raise ValidationError("El nombre del producto no puede estar vacío")
+    
+    if not data.estado.strip():
+        raise ValidationError("El estado del producto no puede estar vacío")
+    
     product = Product(**data.dict())
     db.add(product)
     db.commit()
