@@ -6,7 +6,7 @@ class ProductCreate(BaseModel):
     stock: int
 
     #Validar "price"
-    def price_must_be_positive(cls, v)
+    def price_must_be_positive(cls, v):
         if v <= 0:
             raise ValueError("El precio debe ser mayor a 0")
         return v
