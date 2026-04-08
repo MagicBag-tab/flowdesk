@@ -2,7 +2,6 @@
   <div class="login-bg">
     <div class="login-card">
       <div class="login-brand">
-        <span class="brand-icon">📋</span>
         <h2 class="brand-name">FlowDesk</h2>
       </div>
 
@@ -19,16 +18,15 @@
 
       <form @submit.prevent="login">
         <div class="form-group">
-          <label class="form-label">Correo Electrónico</label>
+          <label class="form-label">Usuario</label>
           <input
-            v-model="email"
-            type="email"
+            v-model="username"
             class="form-input"
-            :class="{ 'input-error': errores.email }"
-            placeholder="correo@ejemplo.com"
-            @input="limpiarError('email')"
+            :class="{ 'input-error': errores.username }"
+            placeholder="Nombre de usuario"
+            @input="limpiarError('username')"
           />
-          <span v-if="errores.email" class="error-msg">{{ errores.email }}</span>
+          <span v-if="errores.username" class="error-msg">{{ errores.username }}</span>
         </div>
 
         <div class="form-group">
@@ -38,7 +36,7 @@
             type="password"
             class="form-input"
             :class="{ 'input-error': errores.password }"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Ingresa tu contraseña"
             maxlength="20"
             @input="limpiarError('password')"
           />

@@ -3,7 +3,7 @@ export default {
 
   data() {
     return {
-      email: '',
+      username: '',
       password: '',
 
       cargando: false,
@@ -12,7 +12,7 @@ export default {
       successMsg: '',
 
       errores: {
-        email: '',
+        username: '',
         password: '',
       },
     }
@@ -27,13 +27,10 @@ export default {
     validarFormulario() {
       let valido = true
 
-      if (!this.email.trim()) {
-        this.errores.email = 'El correo es requerido.'
+      if (!this.username.trim()) {
+        this.errores.username = 'El usuario es requerido.'
         valido = false
-      } else if (!/.+@.+\..+/.test(this.email)) {
-        this.errores.email = 'Ingresa un correo válido.'
-        valido = false
-      }
+      } 
 
       if (!this.password) {
         this.errores.password = 'La contraseña es requerida.'
