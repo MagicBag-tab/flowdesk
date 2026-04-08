@@ -13,8 +13,8 @@ def get_products(db: Session):
     return db.query(Product).all()
 
 #Cambios en stock y validacion
-def validate_stock(current_stock, change):
-    new_stock = current_stock + change
+def validate_stock(stock_actual, cambio):
+    new_stock = stock_actual + cambio
 
     if new_stock < 0 :
         raise ValidationError("stock insuficiente")
@@ -28,7 +28,7 @@ def update_stock(db: Session, product_id: int, data):
     if not product:
         raise NotFoundError("Producto no encontrado")
     
-    product.stock = validate_stock(product.stock, data.quantity)
+    product.stock_actual = validate_stock(product.stock_actual, data.cantidad)
 
     db.commit()
     db.refresh(product)

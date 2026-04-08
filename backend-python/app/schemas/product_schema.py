@@ -1,21 +1,25 @@
 from pydantic import BaseModel, validator
 
 class ProductCreate(BaseModel):
-    name: str
-    price: float
-    stock: int
+    nombre: str
+    descripcion: Optional[str] = None
+    precio: float
+    stock_actual: int = 0
+    stock_minimo: int = 0
+    estado: str
+    id_proveedor: Optional[int] = None
 
-    #Validar "price"
-    def price_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError("El precio debe ser mayor a 0")
+    #Validar "precio"
+    def price_valido(cls, v):
+        if v < 0:
+            raise ValueError("El precio no puede ser negativo")
         return v
     
-    #Validar "stock"
-    def stock_not_negative(cls, v): 
+    #Validar "stock" (actual y minimo)
+    def stock_valido(cls, v): 
         if v < 0:
             raise ValueError("El stock no puede ser negativo")
         return v
     
 class UpdateStock(BaseModel):
-    quantity: int
+    cantidad: int
