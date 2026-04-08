@@ -1,4 +1,5 @@
 from pydantic import BaseModel, validator
+from typíng import Optional
 
 class ProductCreate(BaseModel):
     nombre: str
