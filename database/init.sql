@@ -1,15 +1,16 @@
 --Script para generacion de base de datos en postgresql puro(sin comentarios para limpieza)
 CREATE TABLE rol (
     id_rol INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre_rol VARCHAR(50) NOT NULL UNIQUE
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    descripcion TEXT
 );
 
 CREATE TABLE usuario (
     id_usuario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    correo VARCHAR(150) NOT NULL UNIQUE,
-    contrasena VARCHAR(255) NOT NULL,
-    estado VARCHAR(30) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    estado VARCHAR(30) NOT NULL DEFAULT 'activo',
     telefono VARCHAR(20),
     id_rol INT NOT NULL,
     CONSTRAINT fk_usuario_rol
@@ -108,7 +109,7 @@ CREATE TABLE tarea (
     id_usuario INT NOT NULL,
     titulo VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    fecha_limite DATE,
+    fecha_limite DATE NOT NULL,
     estado VARCHAR(30) NOT NULL,
     prioridad VARCHAR(20) NOT NULL,
     CONSTRAINT fk_tarea_usuario

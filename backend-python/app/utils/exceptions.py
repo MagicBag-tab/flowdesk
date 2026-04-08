@@ -1,12 +1,28 @@
 class AppError(Exception):
-    def _init_(self, message, status_code = 400):
+    def __init__(self, message, status_code=400):
+        super().__init__(message)
         self.message = message
         self.status_code = status_code
 
 class ValidationError(AppError):
-    def _init_(self, message = "Error de validación"):
-        super()._init_(message, 400)
+    def __init__(self, message="Error de validación"):
+        super().__init__(message, 400)
 
 class NotFoundError(AppError):
-    def _init_(self, message = "Recurso no encontrado"):
-        super()._init_(message, 404)
+    def __init__(self, message="Recurso no encontrado"):
+        super().__init__(message, 404)
+
+
+class ConflictError(AppError):
+    def __init__(self, message="El recurso ya existe"):
+        super().__init__(message, 409)
+
+
+class AuthenticationError(AppError):
+    def __init__(self, message="No autenticado"):
+        super().__init__(message, 401)
+
+
+class AuthorizationError(AppError):
+    def __init__(self, message="No autorizado"):
+        super().__init__(message, 403)
