@@ -48,6 +48,9 @@
           <span>{{ cargando ? 'Ingresando...' : 'Iniciar Sesión' }}</span>
         </button>
       </form>
+      <p class="link-registro">
+        <span class="link-texto" @click="$router.push('/registro')">Registra tu negocio</span>
+      </p>
     </div>
   </div>
 </template>
