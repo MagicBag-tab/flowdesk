@@ -1,3 +1,7 @@
 <template>
-  <h1>Frontend funcionando</h1>
+  <Inventory />
 </template>
+
+<script setup>
+import Inventory from './components/inventory/Inventory.vue';
+</script>
