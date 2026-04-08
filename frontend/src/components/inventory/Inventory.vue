@@ -1,66 +1,39 @@
 <template>
   <div class="inventario-page">
-    <div class="page-header">
-      <div class="header-left">
-        <h1 class="page-title">Inventario</h1>
-        <span class="product-count">{{ productosFiltrados.length }} productos</span>
-      </div>
-      <button class="btn-add" @click="abrirModal()">
-        <span class="btn-icon">+</span>
-        Agregar producto
-      </button>
+    <div class="page-header-bar">
+      <h1 class="page-title">Inventario</h1>
     </div>
 
-    <div class="content-wrapper">
-
+    <div class="content-container">
       <div class="table-container">
         <table class="inventory-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Cantidad</th>
-              <th>Descripción</th>
-              <th>Categoría</th>
+              <th v-if="columnasVisibles.id">ID</th>
+              <th v-if="columnasVisibles.nombre">Nombre</th>
+              <th v-if="columnasVisibles.cantidad">Cantidad</th>
+              <th v-if="columnasVisibles.descripcion">Descripción</th>
+              <th v-if="columnasVisibles.precio">Precio c/u</th>
+              <th v-if="columnasVisibles.proveedor">Proveedor</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="producto in productosFiltrados"
-              :key="producto.id"
-              :class="{ 'low-stock': producto.cantidad <= producto.stockMinimo }"
-            >
-              <td class="td-id">{{ producto.id }}</td>
-              <td class="td-nombre">
-                <span class="nombre-text">{{ producto.nombre }}</span>
-                <span v-if="producto.cantidad <= producto.stockMinimo" class="badge-alerta">
-                  Stock bajo
-                </span>
-              </td>
-              <td class="td-cantidad">
-                <span
-                  class="cantidad-pill"
-                  :class="{
-                    'cantidad-ok':  producto.cantidad > producto.stockMinimo,
-                    'cantidad-low': producto.cantidad <= producto.stockMinimo
-                  }"
-                >
-                  {{ producto.cantidad }}
-                </span>
-              </td>
-              <td class="td-desc">{{ producto.descripcion }}</td>
-              <td class="td-cat">
-                <span class="cat-tag">{{ producto.categoria }}</span>
-              </td>
+            <tr v-for="producto in productosFiltrados" :key="producto.id">
+              <td v-if="columnasVisibles.id">{{ producto.id }}</td>
+              <td v-if="columnasVisibles.nombre">{{ producto.nombre }}</td>
+              <td v-if="columnasVisibles.cantidad">{{ producto.cantidad }}</td>
+              <td v-if="columnasVisibles.descripcion">{{ producto.descripcion }}</td>
+              <td v-if="columnasVisibles.precio">Q{{ producto.precio.toFixed(2) }}</td>
+              <td v-if="columnasVisibles.proveedor">{{ producto.proveedor ?? '—' }}</td>
               <td class="td-acciones">
-                <button class="btn-action edit" @click="abrirModal(producto)" title="Editar">✏️</button>
-                <button class="btn-action delete" @click="confirmarEliminar(producto)" title="Eliminar">🗑️</button>
+                <button class="btn-action" @click="abrirModal(producto)" title="Editar">✏️</button>
+                <button class="btn-action" @click="confirmarEliminar(producto)" title="Eliminar">🗑️</button>
               </td>
             </tr>
             <tr v-if="productosFiltrados.length === 0">
-              <td colspan="6" class="empty-state">
-                No hay productos para los filtros seleccionados.
+              <td :colspan="columnaCount + 1" class="empty-state">
+                No hay productos para mostrar.
               </td>
             </tr>
           </tbody>
@@ -69,49 +42,19 @@
 
       <div class="filtros-panel">
         <p class="filtros-titulo">Filtros</p>
-
-        <p class="filtros-label">Categoría</p>
+        <p class="filtros-sub">mostrar</p>
         <ul class="filtros-list">
-          <li
-            v-for="cat in categorias"
-            :key="cat"
-            :class="{ active: categoriasSeleccionadas.includes(cat) }"
-            @click="toggleCategoria(cat)"
-          >
-            <span class="checkbox" :class="{ checked: categoriasSeleccionadas.includes(cat) }">
-              <span v-if="categoriasSeleccionadas.includes(cat)">✓</span>
+          <li v-for="col in todasColumnas" :key="col.key" @click="toggleColumna(col.key)">
+            <span class="checkbox" :class="{ checked: columnasVisibles[col.key] }">
+              <span v-if="columnasVisibles[col.key]">✓</span>
             </span>
-            {{ cat }}
+            {{ col.label }}
           </li>
         </ul>
-
-        <hr class="filtros-divider" />
-
-        <p class="filtros-label">Stock</p>
-        <ul class="filtros-list">
-          <li :class="{ active: filtroStock === 'todos' }" @click="filtroStock = 'todos'">
-            <span class="checkbox" :class="{ checked: filtroStock === 'todos' }">
-              <span v-if="filtroStock === 'todos'">✓</span>
-            </span>
-            Todos
-          </li>
-          <li :class="{ active: filtroStock === 'bajo' }" @click="filtroStock = 'bajo'">
-            <span class="checkbox" :class="{ checked: filtroStock === 'bajo' }">
-              <span v-if="filtroStock === 'bajo'">✓</span>
-            </span>
-            Stock bajo
-          </li>
-          <li :class="{ active: filtroStock === 'normal' }" @click="filtroStock = 'normal'">
-            <span class="checkbox" :class="{ checked: filtroStock === 'normal' }">
-              <span v-if="filtroStock === 'normal'">✓</span>
-            </span>
-            Normal
-          </li>
-        </ul>
-
-        <button class="btn-limpiar" @click="limpiarFiltros">Limpiar filtros</button>
       </div>
     </div>
+
+    <button class="btn-fab" @click="abrirModal()" title="Agregar producto">+</button>
 
     <div v-if="modalVisible" class="modal-overlay" @click.self="cerrarModal">
       <div class="modal">
@@ -119,55 +62,33 @@
           <h2 class="modal-title">{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h2>
           <button class="modal-close" @click="cerrarModal">✕</button>
         </div>
-
         <form class="modal-form" @submit.prevent="guardarProducto">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Nombre <span class="required">*</span></label>
-              <input v-model="form.nombre" type="text" placeholder="Ej. Arroz Diana 500g" required />
-            </div>
-            <div class="form-group">
-              <label>Categoría <span class="required">*</span></label>
-              <select v-model="form.categoria" required>
-                <option value="" disabled>Seleccionar...</option>
-                <option v-for="cat in categorias" :key="cat" :value="cat">{{ cat }}</option>
-                <option value="__nueva__">+ Nueva categoría</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label>Nombre <span class="required">*</span></label>
+            <input v-model="form.nombre" type="text" placeholder="Ej. Arroz Diana 500g" required />
           </div>
-
-          <div v-if="form.categoria === '__nueva__'" class="form-group">
-            <label>Nueva categoría <span class="required">*</span></label>
-            <input v-model="nuevaCategoria" type="text" placeholder="Nombre de la categoría" />
-          </div>
-
           <div class="form-group">
             <label>Descripción</label>
-            <input v-model="form.descripcion" type="text" placeholder="Descripción breve del producto" />
+            <input v-model="form.descripcion" type="text" placeholder="Descripción breve" />
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-row form-row-3">
+            <div class="form-group form-group-sm">
               <label>Precio (Q) <span class="required">*</span></label>
               <input v-model.number="form.precio" type="number" min="0" step="0.01" placeholder="0.00" required />
             </div>
-            <div class="form-group">
-              <label>Cantidad en stock <span class="required">*</span></label>
+            <div class="form-group form-group-sm">
+              <label>Cantidad <span class="required">*</span></label>
               <input v-model.number="form.cantidad" type="number" min="0" placeholder="0" required />
             </div>
-            <div class="form-group">
+            <div class="form-group form-group-sm">
               <label>Stock mínimo</label>
               <input v-model.number="form.stockMinimo" type="number" min="0" placeholder="5" />
             </div>
           </div>
-
           <div v-if="errorForm" class="form-error">{{ errorForm }}</div>
-
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="cerrarModal">Cancelar</button>
-            <button type="submit" class="btn-save">
-              {{ editando ? 'Guardar cambios' : 'Crear producto' }}
-            </button>
+            <button type="submit" class="btn-save">{{ editando ? 'Guardar cambios' : 'Crear producto' }}</button>
           </div>
         </form>
       </div>
@@ -193,6 +114,37 @@
   </div>
 </template>
 
-<script setup src="./Inventory.js"></script>
+<script setup>
+import { ref, computed } from 'vue'
+import {
+  productosFiltrados,
+  modalVisible, editando, errorForm, form,
+  abrirModal, cerrarModal, guardarProducto,
+  modalEliminar, productoAEliminar,
+  confirmarEliminar, eliminarProducto
+} from './Inventory.js'
+
+const todasColumnas = [
+  { key: 'id',          label: 'ID' },
+  { key: 'nombre',      label: 'Nombre' },
+  { key: 'cantidad',    label: 'Cantidad' },
+  { key: 'descripcion', label: 'Descripción' },
+  { key: 'precio',      label: 'Precio c/u' },
+  { key: 'proveedor',   label: 'Proveedor' },
+]
+
+const columnasVisibles = ref({
+  id: true, nombre: true, cantidad: true,
+  descripcion: true, precio: false, proveedor: false,
+})
+
+function toggleColumna(key) {
+  columnasVisibles.value[key] = !columnasVisibles.value[key]
+}
+
+const columnaCount = computed(() =>
+  Object.values(columnasVisibles.value).filter(Boolean).length
+)
+</script>
 
 <style src="./Inventory.css" scoped></style>
