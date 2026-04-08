@@ -10,6 +10,19 @@ class ProductCreate(BaseModel):
     estado: str
     id_proveedor: Optional[int] = None
 
+    #Validar "nombre"
+    def nombre_valido(cls, v):
+        if not v.strip():
+            raise ValueError("El nombre no puede estar vacío")
+        return v
+    
+    #Validar "estado"
+    def estado_valido(cls, v):
+        estados_validos = ["disponible", "agotado", "descontinuado"]
+        if v not in estados_validos:
+            raise ValueError(f"El estado debe ser uno de: {', '.join(estados_validos)}")
+        return v
+
     #Validar "precio"
     def price_valido(cls, v):
         if v < 0:
