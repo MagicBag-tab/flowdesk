@@ -1,7 +1,7 @@
 <template>
-  <Inventory />
+  <RouterView />
 </template>
 
 <script setup>
-import Inventory from './components/inventory/Inventory.vue';
+import { RouterView } from 'vue-router'
 </script>
